@@ -537,8 +537,16 @@
             const prev = isNewToday ? p.entryPrice : (cached?.success && cached.previousClose ? cached.previousClose : p.currentPrice);
             return sum + prev * p.quantity;
           }, 0);
-          const percent = prevTotal > 0 ? (gain / prevTotal) * 100 : 0;
-          setDailyGain({ value: gain, percent, hasYesterday: true });
+          // Add P&L from positions closed today (exitPrice - previousClose)
+          const closedTodayGain = closedTrades.filter(t => t.exitDate === today).reduce((sum, t) => {
+            const ct = t.ticker.replace(/b\.HK$/, '.HK');
+            const cached = priceCache[ct];
+            const prevClose = cached?.success && cached.previousClose ? cached.previousClose : t.entryPrice;
+            return sum + (t.exitPrice - prevClose) * t.quantity;
+          }, 0);
+          const totalGain = gain + closedTodayGain;
+          const percent = prevTotal > 0 ? (totalGain / prevTotal) * 100 : 0;
+          setDailyGain({ value: totalGain, percent, hasYesterday: true });
         } else if (yesterdaySnapshot) {
           const gain = currentValue - yesterdaySnapshot.portfolioValue;
           const percent = yesterdaySnapshot.portfolioValue > 0
@@ -1502,14 +1510,25 @@
                 };
               }).sort((a, b) => b.dailyChangePercent - a.dailyChangePercent);
 
-              const totalDailyDollar = moversData.reduce((s, p) => s + p.dailyChangeDollar, 0);
-              const prevTotalValue = moversData.reduce((s, p) => s + (p.previousClose * p.quantity), 0);
+              // Include positions closed today in movers
+              const closedTodayData = closedTrades.filter(t => t.exitDate === todayStr).map(t => {
+                const ct = t.ticker.replace(/b\.HK$/, '.HK');
+                const cached = priceCache[ct];
+                const prevClose = cached?.success && cached.previousClose ? cached.previousClose : t.entryPrice;
+                const dailyChangePercent = prevClose > 0 ? ((t.exitPrice - prevClose) / prevClose) * 100 : 0;
+                const dailyChangeDollar = (t.exitPrice - prevClose) * t.quantity;
+                return { ...t, currentPrice: t.exitPrice, previousClose: prevClose, dailyChangePercent, dailyChangeDollar, marketValue: 0, weight: 0, isClosed: true };
+              });
+              const allMovers = [...moversData, ...closedTodayData].sort((a, b) => b.dailyChangePercent - a.dailyChangePercent);
+
+              const totalDailyDollar = allMovers.reduce((s, p) => s + p.dailyChangeDollar, 0);
+              const prevTotalValue = allMovers.reduce((s, p) => s + (p.previousClose * p.quantity), 0);
               const totalDailyPercent = prevTotalValue > 0 ? (totalDailyDollar / prevTotalValue) * 100 : 0;
-              const gainersCount = moversData.filter(p => p.dailyChangePercent > 0).length;
-              const losersCount = moversData.filter(p => p.dailyChangePercent < 0).length;
-              const unchangedCount = moversData.filter(p => p.dailyChangePercent === 0).length;
-              const top3Gainers = moversData.filter(p => p.dailyChangePercent > 0).slice(0, 3);
-              const top3Losers = [...moversData].filter(p => p.dailyChangePercent < 0).sort((a, b) => a.dailyChangePercent - b.dailyChangePercent).slice(0, 3);
+              const gainersCount = allMovers.filter(p => p.dailyChangePercent > 0).length;
+              const losersCount = allMovers.filter(p => p.dailyChangePercent < 0).length;
+              const unchangedCount = allMovers.filter(p => p.dailyChangePercent === 0).length;
+              const top3Gainers = allMovers.filter(p => p.dailyChangePercent > 0).slice(0, 3);
+              const top3Losers = [...allMovers].filter(p => p.dailyChangePercent < 0).sort((a, b) => a.dailyChangePercent - b.dailyChangePercent).slice(0, 3);
               const hasPriceData = Object.values(priceCache).some(c => c?.success);
 
               return (
@@ -1567,9 +1586,9 @@
                       </tr>
                     </thead>
                     <tbody>
-                      {moversData.map(p => (
+                      {allMovers.map(p => (
                         <tr key={p.id} className="border-t border-gray-700">
-                          <td className="px-2 py-1.5 font-mono text-blue-400">{p.ticker.replace('.HK', '')}</td>
+                          <td className={`px-2 py-1.5 font-mono ${p.isClosed ? 'text-gray-400' : 'text-blue-400'}`}>{p.ticker.replace('.HK', '')}{p.isClosed ? ' (sold)' : ''}</td>
                           <td className="px-2 py-1.5 truncate max-w-24 hidden md:table-cell">{p.name}</td>
                           <td className="px-2 py-1.5 text-right text-gray-400">{p.previousClose.toFixed(2)}</td>
                           <td className="px-2 py-1.5 text-right">{p.currentPrice.toFixed(2)}</td>
@@ -1598,54 +1617,6 @@
                   </table>
                 </div>
 
-                {/* Key Metrics */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">Capital Engagé</div>
-                    <div className="text-xl font-bold">{fmt(m.capitalEngaged)}</div>
-                    <div className="text-gray-500 text-xs">Coût d'achat total</div>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">Valeur Portfolio</div>
-                    <div className="text-xl font-bold text-blue-400">{fmt(m.totalValue)}</div>
-                    <div className="text-gray-500 text-xs">{positions.length} positions</div>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">Return Total</div>
-                    <div className={`text-xl font-bold ${m.overallReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {m.overallReturn >= 0 ? '+' : ''}{m.overallReturn.toFixed(2)}%
-                    </div>
-                    <div className="text-gray-500 text-xs">{fmt(m.totalValue - m.capitalEngaged)} HKD</div>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">TWR</div>
-                    <div className={`text-xl font-bold ${m.twr >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {m.twr >= 0 ? '+' : ''}{m.twr.toFixed(2)}%
-                    </div>
-                    <div className="text-gray-500 text-xs">Time-Weighted</div>
-                  </div>
-                </div>
-
-                {/* Detailed Breakdown */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">P&L Latent</div>
-                    <div className={`font-bold ${m.totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {m.totalPnL >= 0 ? '+' : ''}{fmt(m.totalPnL)}
-                    </div>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">P&L Réalisé</div>
-                    <div className={`font-bold ${m.realizedPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {m.realizedPnL >= 0 ? '+' : ''}{fmt(m.realizedPnL)}
-                    </div>
-                  </div>
-                  <div className="bg-gray-800 rounded-lg p-3">
-                    <div className="text-gray-400 text-xs">Win Rate</div>
-                    <div className="font-bold text-yellow-400">{m.winRate.toFixed(0)}%</div>
-                  </div>
-                </div>
-
                 {/* Daily P&L Calendar */}
                 {(() => {
                   const { year, month } = calendarMonth;
@@ -1666,13 +1637,25 @@
                   const todayPnl = positions.reduce((sum, p) => {
                     const ct = p.ticker.replace(/b\.HK$/, '.HK');
                     const cached = priceCache[ct];
+                    const isNewToday = p.entryDate === todayDate;
+                    if (isNewToday) {
+                      const curPrice = cached?.success ? cached.price : p.currentPrice;
+                      return sum + (curPrice - p.entryPrice) * p.quantity;
+                    }
                     if (cached?.success && cached.previousClose) {
                       return sum + (cached.price - cached.previousClose) * p.quantity;
                     }
                     return sum;
                   }, 0);
+                  // Add P&L from positions closed today (exitPrice - previousClose)
+                  const closedTodayPnl = closedTrades.filter(t => t.exitDate === todayDate).reduce((sum, t) => {
+                    const ct = t.ticker.replace(/b\.HK$/, '.HK');
+                    const cached = priceCache[ct];
+                    const prevClose = cached?.success && cached.previousClose ? cached.previousClose : t.entryPrice;
+                    return sum + (t.exitPrice - prevClose) * t.quantity;
+                  }, 0);
                   if (Object.values(priceCache).some(c => c?.success)) {
-                    pnlMap[todayDate] = todayPnl;
+                    pnlMap[todayDate] = todayPnl + closedTodayPnl;
                   }
 
                   // Build calendar grid
