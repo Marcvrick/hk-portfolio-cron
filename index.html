@@ -109,7 +109,7 @@
 
     const DEFAULT_SETTINGS = {
       corsProxy: 'https://api.allorigins.win/raw?url=',
-      autoRefresh: false,
+      autoRefresh: true,
     };
 
     // ===== UTILITY FUNCTIONS =====
@@ -476,6 +476,22 @@
           }));
         } catch (e) { console.error('Save error:', e); }
       }, [positions, closedTrades, transactions, priceCache, snapshots, settings]);
+
+      // ===== AUTO-REFRESH PRICES ON LOAD =====
+      useEffect(() => {
+        if (!dataLoaded || positions.length === 0) return;
+        // Auto-refresh prices when page loads (if no recent cache)
+        const cacheValues = Object.values(priceCache);
+        const hasRecentCache = cacheValues.length > 0 && cacheValues.some(c => {
+          if (!c?.lastUpdated) return false;
+          const age = Date.now() - new Date(c.lastUpdated).getTime();
+          return age < 30 * 60 * 1000; // less than 30 min old
+        });
+        if (!hasRecentCache && !isRefreshing) {
+          console.log('Auto-refreshing prices on load...');
+          refreshPrices();
+        }
+      }, [dataLoaded]);
 
       // ===== AUTO DAILY SNAPSHOT =====
       useEffect(() => {
