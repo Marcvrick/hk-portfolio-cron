@@ -1,0 +1,11 @@
+{
+  "version": 7,
+  "positions": [],
+  "closedTrades": [],
+  "transactions": [],
+  "priceCache": {},
+  "snapshots": [],
+  "settings": {
+    "corsProxy": "https://api.allorigins.win/raw?url="
+  }
+}
