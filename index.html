@@ -24,7 +24,7 @@
 
     // Recharts components (with fallback if not loaded)
     const RC = window.Recharts || {};
-    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area, ScatterChart, Scatter, ReferenceLine, ZAxis } = RC;
+    const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, Cell, AreaChart, Area, ScatterChart, Scatter, ReferenceLine, ZAxis, PieChart, Pie } = RC;
 
     // Fallback chart component when Recharts not loaded
     const ChartFallback = ({ message }) => (
@@ -956,7 +956,6 @@
                   <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''}/>
                   {isRefreshing ? `${refreshProgress.current}/${refreshProgress.total}` : 'Price'}
                 </button>
-                <button onClick={recordSnapshot} className="bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded text-xs flex items-center gap-1"><Save size={14}/> Snapshot</button>
                 <button onClick={exportData} className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded text-xs flex items-center gap-1"><Download size={14}/> Export</button>
               </div>
             </div>
@@ -1138,6 +1137,50 @@
                     </tfoot>
                   </table>
                 </div>
+
+                {/* Allocation Pie Chart */}
+                {RECHARTS_LOADED && (() => {
+                  const COLORS = ['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6','#F97316','#6366F1','#84CC16','#06B6D4','#E11D48','#A855F7','#22D3EE','#FB923C','#4ADE80','#FBBF24','#F472B6'];
+                  const pieData = positions.map((p, i) => {
+                    const ct = p.ticker.replace(/b\.HK$/, '.HK');
+                    const price = priceCache[ct]?.price || p.currentPrice;
+                    const value = price * p.quantity;
+                    return { name: p.ticker.replace('.HK', ''), value, fill: COLORS[i % COLORS.length] };
+                  }).sort((a, b) => b.value - a.value);
+                  const total = pieData.reduce((s, d) => s + d.value, 0);
+
+                  const renderLabel = ({ name, percent }) => percent > 0.03 ? `${name} ${(percent * 100).toFixed(1)}%` : '';
+
+                  return (
+                    <div className="bg-gray-800 rounded-lg p-4 mt-4">
+                      <h3 className="font-semibold mb-3 text-sm">Allocation par position</h3>
+                      <ResponsiveContainer width="100%" height={350}>
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={120}
+                            label={renderLabel}
+                            labelLine={false}
+                            stroke="#1F2937"
+                            strokeWidth={2}
+                          >
+                            {pieData.map((entry, i) => (
+                              <Cell key={i} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
+                            formatter={(value) => [`${(value).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} HKD (${(value / total * 100).toFixed(1)}%)`, 'Valeur']}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -1726,9 +1769,6 @@
                 <div className="bg-gray-800 rounded-lg p-4">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="font-semibold">Equity Curve (Capital vs Valeur)</h3>
-                    <button onClick={recordSnapshot} className="bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded text-xs flex items-center gap-1">
-                      <Save size={14}/> Snapshot
-                    </button>
                   </div>
                   {!RECHARTS_LOADED ? (
                     <ChartFallback message="Rafraîchissez la page pour charger les graphiques" />
