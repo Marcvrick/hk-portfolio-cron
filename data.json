@@ -416,6 +416,15 @@
   },
   "snapshots": [
     {
+      "date": "2026-01-27",
+      "capitalEngaged": 922133.0,
+      "portfolioValue": 872572.0,
+      "unrealizedPnL": -49561.0,
+      "realizedPnL": 13983.0,
+      "totalDividends": 0,
+      "positionCount": 16
+    },
+    {
       "date": "2026-01-28",
       "capitalEngaged": 922133.0,
       "portfolioValue": 882994.0,
