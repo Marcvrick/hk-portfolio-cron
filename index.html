@@ -1145,7 +1145,7 @@
                     const ct = p.ticker.replace(/b\.HK$/, '.HK');
                     const price = priceCache[ct]?.price || p.currentPrice;
                     const value = price * p.quantity;
-                    return { name: p.ticker.replace('.HK', ''), value, fill: COLORS[i % COLORS.length] };
+                    return { name: p.ticker.replace('.HK', ''), companyName: p.name, value, fill: COLORS[i % COLORS.length] };
                   }).sort((a, b) => b.value - a.value);
                   const total = pieData.reduce((s, d) => s + d.value, 0);
 
@@ -1174,7 +1174,13 @@
                           </Pie>
                           <Tooltip
                             contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                            formatter={(value) => [`${(value).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} HKD (${(value / total * 100).toFixed(1)}%)`, 'Valeur']}
+                            itemStyle={{ color: '#FFFFFF' }}
+                            labelStyle={{ color: '#FFFFFF' }}
+                            formatter={(value, name, props) => {
+                              const entry = pieData.find(d => d.name === props.payload.name);
+                              const label = entry?.companyName || name;
+                              return [`${(value).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} HKD (${(value / total * 100).toFixed(1)}%)`, label];
+                            }}
                           />
                         </PieChart>
                       </ResponsiveContainer>
