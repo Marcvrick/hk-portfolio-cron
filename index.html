@@ -1725,20 +1725,26 @@
                   const sortedSnaps = [...snapshots].sort((a, b) => a.date.localeCompare(b.date));
                   if (sortedSnaps.length < 2) return null;
 
+                  // Calculate total P&L for a snapshot (unrealized + realized)
+                  const getTotalPnL = (s) => (s.unrealizedPnL || 0) + (s.realizedPnL || 0);
+
                   // Find first snapshot of current month (or closest before)
                   const now = new Date();
                   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
                   const prevMonthSnaps = sortedSnaps.filter(s => s.date < monthStart);
-                  const baselineValue = prevMonthSnaps.length > 0
-                    ? prevMonthSnaps[prevMonthSnaps.length - 1].portfolioValue
-                    : sortedSnaps[0].portfolioValue;
+                  const baselineSnap = prevMonthSnaps.length > 0
+                    ? prevMonthSnaps[prevMonthSnaps.length - 1]
+                    : sortedSnaps[0];
+                  const baselineTotalPnL = getTotalPnL(baselineSnap);
 
                   const thisMonthSnaps = sortedSnaps.filter(s => s.date >= monthStart);
-                  // Override today with live value
+                  // Override today with live values
                   const todayStr = now.toISOString().split('T')[0];
                   const chartData = thisMonthSnaps.map(s => ({
                     date: s.date.substring(5),
-                    pnl: (s.date === todayStr ? m.totalValue : s.portfolioValue) - baselineValue,
+                    pnl: s.date === todayStr
+                      ? (m.totalPnL + m.realizedPnL) - baselineTotalPnL
+                      : getTotalPnL(s) - baselineTotalPnL,
                   }));
 
                   if (chartData.length === 0) return null;
@@ -2147,16 +2153,20 @@
             {/* History Tab */}
             {activeTab === 'history_tab' && (() => {
               const todayDate = new Date().toISOString().split('T')[0];
+              // Calculate total P&L for a snapshot (unrealized + realized)
+              const getTotalPnL = (s) => (s.unrealizedPnL || 0) + (s.realizedPnL || 0);
               const sortedSnaps = [...snapshots].map(s =>
-                s.date === todayDate ? { ...s, portfolioValue: m.totalValue } : s
+                s.date === todayDate
+                  ? { ...s, portfolioValue: m.totalValue, unrealizedPnL: m.totalPnL, realizedPnL: m.realizedPnL }
+                  : s
               ).sort((a, b) => a.date.localeCompare(b.date));
 
-              // Daily P&L from consecutive snapshots
+              // Daily P&L from consecutive snapshots (using total P&L = unrealized + realized)
               const dailyPnls = [];
               for (let i = 1; i < sortedSnaps.length; i++) {
                 dailyPnls.push({
                   date: sortedSnaps[i].date,
-                  pnl: sortedSnaps[i].portfolioValue - sortedSnaps[i - 1].portfolioValue
+                  pnl: getTotalPnL(sortedSnaps[i]) - getTotalPnL(sortedSnaps[i - 1])
                 });
               }
 
