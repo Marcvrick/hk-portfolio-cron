@@ -84,10 +84,8 @@ See `HSBC trading fees.md` for detailed fee structure and formulas.
 **Done:**
 - ✅ GitHub token storage in Settings tab
 - ✅ "Push to GitHub" button to save data.json to repo
-
-**To do:**
-- Add "Pull from GitHub" button to fetch latest data.json and replace local data
-- This enables full multi-device sync (phone → push → computer → pull)
+- ✅ "Pull from GitHub" button to fetch latest data.json and replace local data
+- ✅ Full multi-device sync enabled (phone → push → computer → pull)
 
 ### Other improvements
 - Move to a proper React project with build step (Vite)

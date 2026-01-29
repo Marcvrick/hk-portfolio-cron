@@ -557,6 +557,68 @@
         }
       }, []);
 
+      const pullFromGitHub = useCallback(async (token) => {
+        if (!token) {
+          console.log('No GitHub token, skipping pull');
+          return { success: false, error: 'No token' };
+        }
+
+        if (!confirm('Ceci va remplacer toutes vos données locales par celles de GitHub.\n\nVoulez-vous continuer ?')) {
+          return { success: false, error: 'Cancelled' };
+        }
+
+        setIsSyncing(true);
+        try {
+          const getUrl = `https://api.github.com/repos/${GITHUB_REPO.owner}/${GITHUB_REPO.repo}/contents/${GITHUB_REPO.path}?ref=${GITHUB_REPO.branch}`;
+          const getRes = await fetch(getUrl, {
+            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+          });
+
+          if (!getRes.ok) {
+            throw new Error(`Failed to fetch: ${getRes.status}`);
+          }
+
+          const fileData = await getRes.json();
+          const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+
+          // Validate data structure
+          if (!content.positions || !Array.isArray(content.positions)) {
+            throw new Error('Invalid data format');
+          }
+
+          // Update state with pulled data (preserve local token)
+          const localToken = settings.githubToken;
+          setPositions(content.positions || []);
+          setClosedTrades(content.closedTrades || []);
+          setTransactions(content.transactions || []);
+          setPriceCache(content.priceCache || {});
+          setSnapshots(content.snapshots || []);
+          setSettings({ ...(content.settings || DEFAULT_SETTINGS), githubToken: localToken });
+
+          // Save to localStorage
+          const dataToSave = {
+            version: 7,
+            positions: content.positions || [],
+            closedTrades: content.closedTrades || [],
+            transactions: content.transactions || [],
+            priceCache: content.priceCache || {},
+            snapshots: content.snapshots || [],
+            settings: { ...(content.settings || DEFAULT_SETTINGS), githubToken: localToken }
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+
+          console.log('GitHub pull successful');
+          setLastSyncStatus({ success: true, time: new Date().toISOString(), action: 'pull' });
+          return { success: true };
+        } catch (e) {
+          console.error('GitHub pull error:', e);
+          setLastSyncStatus({ success: false, error: e.message, time: new Date().toISOString(), action: 'pull' });
+          return { success: false, error: e.message };
+        } finally {
+          setIsSyncing(false);
+        }
+      }, [settings.githubToken]);
+
       // ===== AUTO-REFRESH PRICES ON LOAD =====
       useEffect(() => {
         if (!dataLoaded || positions.length === 0) return;
@@ -2297,6 +2359,14 @@
                       >
                         {isSyncing ? <RefreshCw size={16} className="animate-spin"/> : <Upload size={16}/>}
                         {isSyncing ? 'Syncing...' : 'Push to GitHub'}
+                      </button>
+                      <button
+                        onClick={() => pullFromGitHub(settings.githubToken)}
+                        disabled={!settings.githubToken || isSyncing}
+                        className={`px-4 py-2 rounded text-sm flex items-center gap-2 ${settings.githubToken ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 cursor-not-allowed'}`}
+                      >
+                        {isSyncing ? <RefreshCw size={16} className="animate-spin"/> : <Download size={16}/>}
+                        {isSyncing ? 'Syncing...' : 'Pull from GitHub'}
                       </button>
                       {lastSyncStatus && (
                         <span className={`text-xs ${lastSyncStatus.success ? 'text-green-400' : 'text-red-400'}`}>
