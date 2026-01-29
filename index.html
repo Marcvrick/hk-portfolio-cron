@@ -2080,45 +2080,77 @@
                   );
                 })()}
 
-                {/* Equity Chart */}
+                {/* Equity Curve - Total P&L over time */}
+                {(() => {
+                  const todayStr = new Date().toISOString().split('T')[0];
+                  // Calculate total P&L for each snapshot and update today with live values
+                  const pnlData = snapshots.map(s => {
+                    if (s.date === todayStr) {
+                      return {
+                        date: s.date,
+                        totalPnL: m.totalPnL + m.realizedPnL,
+                        unrealizedPnL: m.totalPnL,
+                        realizedPnL: m.realizedPnL
+                      };
+                    }
+                    return {
+                      date: s.date,
+                      totalPnL: (s.unrealizedPnL || 0) + (s.realizedPnL || 0),
+                      unrealizedPnL: s.unrealizedPnL || 0,
+                      realizedPnL: s.realizedPnL || 0
+                    };
+                  }).sort((a, b) => a.date.localeCompare(b.date));
+
+                  const latestPnL = pnlData.length > 0 ? pnlData[pnlData.length - 1].totalPnL : 0;
+                  const isPositive = latestPnL >= 0;
+
+                  return (
                 <div className="bg-gray-800 rounded-lg p-4">
                   <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold">Equity Curve (Capital vs Valeur)</h3>
+                    <h3 className="font-semibold">P&L Total (Gains/Pertes cumulés)</h3>
+                    <span className={`text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                      {isPositive ? '+' : ''}{fmt(latestPnL)} HKD
+                    </span>
                   </div>
                   {!RECHARTS_LOADED ? (
                     <ChartFallback message="Rafraîchissez la page pour charger les graphiques" />
-                  ) : snapshots.length > 1 ? (
+                  ) : pnlData.length > 1 ? (
                     <ResponsiveContainer width="100%" height={350}>
-                      <AreaChart data={snapshots}>
+                      <AreaChart data={pnlData}>
                         <defs>
-                          <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                          </linearGradient>
-                          <linearGradient id="colorCap" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                          <linearGradient id="colorTotalPnl" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={isPositive ? '#10B981' : '#EF4444'} stopOpacity={0.4} />
+                            <stop offset="95%" stopColor={isPositive ? '#10B981' : '#EF4444'} stopOpacity={0} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                         <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} />
-                        <YAxis stroke="#9CA3AF" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                        <YAxis
+                          stroke="#9CA3AF"
+                          tickFormatter={(v) => v > 999 || v < -999 ? `${(v / 1000).toFixed(0)}k` : v}
+                        />
                         <Tooltip
                           contentStyle={{ backgroundColor: '#1F2937', border: 'none' }}
-                          formatter={(v) => fmt(v) + ' HKD'}
+                          formatter={(v, name) => {
+                            const label = name === 'totalPnL' ? 'P&L Total' : name === 'unrealizedPnL' ? 'Latent' : 'Réalisé';
+                            return [(v >= 0 ? '+' : '') + fmt(v) + ' HKD', label];
+                          }}
                         />
-                        <Legend />
-                        <Area type="monotone" dataKey="capitalEngaged" stroke="#3B82F6" fill="url(#colorCap)" name="Capital Engagé" strokeWidth={2} />
-                        <Area type="monotone" dataKey="portfolioValue" stroke="#10B981" fill="url(#colorVal)" name="Valeur" strokeWidth={2} />
+                        <Legend formatter={(value) => value === 'totalPnL' ? 'P&L Total' : value === 'unrealizedPnL' ? 'Latent' : 'Réalisé'} />
+                        <Area type="monotone" dataKey="totalPnL" stroke={isPositive ? '#10B981' : '#EF4444'} fill="url(#colorTotalPnl)" name="totalPnL" strokeWidth={2} />
+                        <Area type="monotone" dataKey="unrealizedPnL" stroke="#3B82F6" fill="none" strokeDasharray="3 3" name="unrealizedPnL" strokeWidth={1} />
+                        <Area type="monotone" dataKey="realizedPnL" stroke="#8B5CF6" fill="none" strokeDasharray="3 3" name="realizedPnL" strokeWidth={1} />
                       </AreaChart>
                     </ResponsiveContainer>
                   ) : (
                     <div className="h-48 flex flex-col items-center justify-center text-gray-500">
-                      <p>Aucun historique. Cliquez "Snapshot" pour enregistrer.</p>
-                      <p className="text-xs mt-2">Snapshots: {snapshots.length} (besoin de 2+)</p>
+                      <p>Pas assez de snapshots pour afficher la courbe.</p>
+                      <p className="text-xs mt-2">Snapshots: {pnlData.length} (besoin de 2+)</p>
                     </div>
                   )}
                 </div>
+                  );
+                })()}
 
                 {/* Position Duration Charts */}
                 <div className="bg-gray-800 rounded-lg p-4">
