@@ -1789,13 +1789,21 @@
                 })()}
 
                 {/* Invested Capital Chart */}
+                {(() => {
+                  const todayStr = new Date().toISOString().split('T')[0];
+                  // Update today's snapshot with live capitalEngaged value
+                  const liveSnapshots = snapshots.map(s =>
+                    s.date === todayStr ? { ...s, capitalEngaged: m.capitalEngaged } : s
+                  ).sort((a, b) => a.date.localeCompare(b.date));
+
+                  return (
                 <div className="bg-gray-800 rounded-lg p-4 mt-4">
                   <h3 className="font-semibold mb-3">Capital Investi (évolution journalière)</h3>
                   {!RECHARTS_LOADED ? (
                     <ChartFallback message="Rafraîchissez la page pour charger les graphiques" />
-                  ) : snapshots.length > 1 ? (
+                  ) : liveSnapshots.length > 1 ? (
                     <ResponsiveContainer width="100%" height={300}>
-                      <AreaChart data={snapshots}>
+                      <AreaChart data={liveSnapshots}>
                         <defs>
                           <linearGradient id="colorCapHist" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4} />
@@ -1816,11 +1824,13 @@
                   ) : (
                     <div className="h-48 flex flex-col items-center justify-center text-gray-500">
                       <p>Pas assez de snapshots pour afficher la courbe.</p>
-                      <p className="text-xs mt-2">Snapshots: {snapshots.length} (besoin de 2+)</p>
+                      <p className="text-xs mt-2">Snapshots: {liveSnapshots.length} (besoin de 2+)</p>
                       <p className="text-xs text-gray-600 mt-1">Un snapshot est pris automatiquement chaque jour.</p>
                     </div>
                   )}
                 </div>
+                  );
+                })()}
               </div>
             )}
 
