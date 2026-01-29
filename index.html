@@ -443,6 +443,12 @@
 
           if (data) {
             data = migrateDataToV7(data);
+            console.log('Data loaded:', {
+              source: result?.value ? 'localStorage' : 'remote',
+              positions: data.positions?.length,
+              closedTrades: data.closedTrades?.length,
+              snapshots: data.snapshots?.length
+            });
             setPositions(data.positions || INITIAL_POSITIONS);
             setClosedTrades(data.closedTrades || INITIAL_CLOSED_TRADES);
             setTransactions(data.transactions || INITIAL_TRANSACTIONS);
@@ -450,6 +456,7 @@
             setSnapshots(data.snapshots || []);
             setSettings(data.settings || DEFAULT_SETTINGS);
           } else {
+            console.warn('No data found, using defaults');
             setPositions(INITIAL_POSITIONS);
             setClosedTrades(INITIAL_CLOSED_TRADES);
             setTransactions(INITIAL_TRANSACTIONS);
@@ -2209,6 +2216,8 @@
                     <p>Snapshots: {snapshots.length}</p>
                     <p>Prix en cache: {Object.keys(priceCache).length}</p>
                     <p>Stockage: localStorage (hk-portfolio-v7)</p>
+                    <p>Domain: {window.location.hostname || 'file://'}</p>
+                    <p className="text-yellow-400 text-xs mt-2">Note: localStorage est spécifique au domaine. Les données sur GitHub Pages ne sont pas partagées avec localhost.</p>
                   </div>
                 </div>
               </div>
