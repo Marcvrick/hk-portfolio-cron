@@ -16,16 +16,16 @@
       "name": "CaoCao Inc",
       "quantity": 900,
       "entryPrice": 36.48,
-      "currentPrice": 35.52,
-      "entryDate": "2026-01-23"
+      "currentPrice": 35,
+      "entryDate": "2026-01-14"
     },
     {
       "id": 3,
       "ticker": "0285.HK",
       "name": "BYD Electronic International",
       "quantity": 1500,
-      "entryPrice": 43.0,
-      "currentPrice": 34.68,
+      "entryPrice": 43,
+      "currentPrice": 34.32,
       "entryDate": "2025-09-22"
     },
     {
@@ -34,7 +34,7 @@
       "name": "ZCZL Industrial Technology",
       "quantity": 2800,
       "entryPrice": 21.72,
-      "currentPrice": 22.2,
+      "currentPrice": 21.98,
       "entryDate": "2025-11-29"
     },
     {
@@ -43,7 +43,7 @@
       "name": "Prada SpA",
       "quantity": 1000,
       "entryPrice": 50.3,
-      "currentPrice": 40.28,
+      "currentPrice": 40.24,
       "entryDate": "2025-07-10"
     },
     {
@@ -52,7 +52,7 @@
       "name": "Boyaa Interactive International",
       "quantity": 10000,
       "entryPrice": 4.82,
-      "currentPrice": 3.57,
+      "currentPrice": 3.54,
       "entryDate": "2025-10-23"
     },
     {
@@ -61,7 +61,7 @@
       "name": "Shanghai Fosun Pharmaceutical",
       "quantity": 2000,
       "entryPrice": 21.82,
-      "currentPrice": 20.72,
+      "currentPrice": 21.02,
       "entryDate": "2026-01-13"
     },
     {
@@ -70,7 +70,7 @@
       "name": "Sa Sa International Holdings",
       "quantity": 50000,
       "entryPrice": 0.66,
-      "currentPrice": 0.6,
+      "currentPrice": 0.59,
       "entryDate": "2025-10-04"
     },
     {
@@ -79,7 +79,7 @@
       "name": "China General Education Group",
       "quantity": 9000,
       "entryPrice": 3.51,
-      "currentPrice": 2.84,
+      "currentPrice": 2.87,
       "entryDate": "2025-11-25"
     },
     {
@@ -87,8 +87,8 @@
       "ticker": "9690.HK",
       "name": "TUHU Car Inc",
       "quantity": 1500,
-      "entryPrice": 20.0,
-      "currentPrice": 15.73,
+      "entryPrice": 20,
+      "currentPrice": 15.83,
       "entryDate": "2025-09-09"
     },
     {
@@ -97,7 +97,7 @@
       "name": "Shanghai Haohai Biological Tech",
       "quantity": 900,
       "entryPrice": 30.05,
-      "currentPrice": 26.2,
+      "currentPrice": 26.08,
       "entryDate": "2025-07-25"
     },
     {
@@ -106,7 +106,7 @@
       "name": "Mobvoi Inc",
       "quantity": 25000,
       "entryPrice": 0.81,
-      "currentPrice": 0.65,
+      "currentPrice": 0.63,
       "entryDate": "2025-10-03"
     },
     {
@@ -115,7 +115,7 @@
       "name": "Jiangsu Expressway",
       "quantity": 2000,
       "entryPrice": 9.03,
-      "currentPrice": 10.45,
+      "currentPrice": 10.52,
       "entryDate": "2025-10-13"
     },
     {
@@ -124,7 +124,7 @@
       "name": "Modern Dental Group Ltd",
       "quantity": 2000,
       "entryPrice": 5.4,
-      "currentPrice": 6.07,
+      "currentPrice": 5.99,
       "entryDate": "2025-12-11"
     },
     {
@@ -133,8 +133,8 @@
       "name": "Mongolian Mining Corp",
       "quantity": 9000,
       "entryPrice": 11.8,
-      "entryDate": "2026-01-20",
-      "currentPrice": 13.67
+      "currentPrice": 14.01,
+      "entryDate": "0026-01-20"
     },
     {
       "id": 16,
@@ -142,8 +142,17 @@
       "name": "Vitasoy International Holdings",
       "quantity": 20000,
       "entryPrice": 7.07,
-      "currentPrice": 6.98,
+      "currentPrice": 7.02,
       "entryDate": "2026-01-26"
+    },
+    {
+      "id": 1769510428202,
+      "ticker": "1316.HK",
+      "name": "NEXTEER",
+      "quantity": 4000,
+      "entryPrice": 7.16,
+      "currentPrice": 6.7,
+      "entryDate": "2026-01-27"
     }
   ],
   "closedTrades": [
@@ -173,7 +182,7 @@
       "name": "Shanghai Fudan Microelectronics",
       "quantity": 1000,
       "entryPrice": 52.55,
-      "exitPrice": 49.0,
+      "exitPrice": 49,
       "entryDate": "2025-12-28",
       "exitDate": "2026-01-19"
     },
@@ -182,8 +191,8 @@
       "ticker": "9999.HK",
       "name": "NetEase Inc",
       "quantity": 500,
-      "entryPrice": 220.0,
-      "exitPrice": 216.0,
+      "entryPrice": 220,
+      "exitPrice": 216,
       "entryDate": "2025-12-29",
       "exitDate": "2026-01-20"
     },
@@ -273,178 +282,197 @@
       "success": true,
       "price": 4.62,
       "previousClose": 4.559999942779541,
-      "change": 0.06,
-      "changePercent": 1.3158,
+      "change": 0.06000005722045909,
+      "changePercent": 1.3157907450298376,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:24.871984+08:00"
-    },
-    "2643.HK": {
-      "success": true,
-      "price": 35.52,
-      "previousClose": 35.65999984741211,
-      "change": -0.14,
-      "changePercent": -0.3926,
-      "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:24.916851+08:00"
+      "lastUpdated": "2026-01-29T07:25:08.956Z"
     },
     "0285.HK": {
       "success": true,
-      "price": 34.68,
-      "previousClose": 34.15999984741211,
-      "change": 0.52,
-      "changePercent": 1.5222,
+      "price": 34.32,
+      "previousClose": 34.68000030517578,
+      "change": -0.36000030517578097,
+      "changePercent": -1.0380631545786148,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:24.977397+08:00"
+      "lastUpdated": "2026-01-29T08:51:01.999Z"
     },
     "0564.HK": {
       "success": true,
-      "price": 22.2,
-      "previousClose": 22.100000381469727,
-      "change": 0.1,
-      "changePercent": 0.4525,
+      "price": 21.98,
+      "previousClose": 22.200000762939453,
+      "change": -0.2200007629394527,
+      "changePercent": -0.9909943935980428,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.035883+08:00"
-    },
-    "1913.HK": {
-      "success": true,
-      "price": 40.28,
-      "previousClose": 41.18000030517578,
-      "change": -0.9,
-      "changePercent": -2.1855,
-      "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.092369+08:00"
+      "lastUpdated": "2026-01-29T08:51:02.522Z"
     },
     "0434.HK": {
       "success": true,
-      "price": 3.57,
-      "previousClose": 3.5799999237060547,
-      "change": -0.01,
-      "changePercent": -0.2793,
+      "price": 3.54,
+      "previousClose": 3.569999933242798,
+      "change": -0.029999933242797816,
+      "changePercent": -0.8403342802179683,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.148996+08:00"
+      "lastUpdated": "2026-01-29T08:51:06.931Z"
     },
     "2196.HK": {
       "success": true,
-      "price": 20.72,
-      "previousClose": 20.799999237060547,
-      "change": -0.08,
-      "changePercent": -0.3846,
+      "price": 21.02,
+      "previousClose": 20.719999313354492,
+      "change": 0.3000006866455074,
+      "changePercent": 1.4478798097843102,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.202454+08:00"
-    },
-    "0178.HK": {
-      "success": true,
-      "price": 0.6,
-      "previousClose": 0.6000000238418579,
-      "change": -0.0,
-      "changePercent": -0.0,
-      "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.280156+08:00"
-    },
-    "2175.HK": {
-      "success": true,
-      "price": 2.84,
-      "previousClose": 2.930000066757202,
-      "change": -0.09,
-      "changePercent": -3.0717,
-      "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.324271+08:00"
+      "lastUpdated": "2026-01-29T08:51:07.470Z"
     },
     "9690.HK": {
       "success": true,
-      "price": 15.73,
-      "previousClose": 15.899999618530273,
-      "change": -0.17,
-      "changePercent": -1.0692,
+      "price": 15.83,
+      "previousClose": 15.729999542236328,
+      "change": 0.10000045776367195,
+      "changePercent": 0.6357308370872014,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.369839+08:00"
+      "lastUpdated": "2026-01-29T08:51:09.001Z"
     },
     "6826.HK": {
       "success": true,
-      "price": 26.2,
-      "previousClose": 26.1200008392334,
-      "change": 0.08,
-      "changePercent": 0.3063,
+      "price": 26.08,
+      "previousClose": 26.200000762939453,
+      "change": -0.12000076293945483,
+      "changePercent": -0.458018165820815,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.453221+08:00"
+      "lastUpdated": "2026-01-29T08:51:09.509Z"
     },
     "2438.HK": {
       "success": true,
-      "price": 0.65,
-      "previousClose": 0.6100000143051147,
-      "change": 0.04,
-      "changePercent": 6.5574,
+      "price": 0.63,
+      "previousClose": 0.6499999761581421,
+      "change": -0.019999976158142085,
+      "changePercent": -3.0769195218056717,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.497826+08:00"
+      "lastUpdated": "2026-01-29T08:51:10.017Z"
     },
     "0177.HK": {
       "success": true,
-      "price": 10.45,
-      "previousClose": 10.140000343322754,
-      "change": 0.31,
-      "changePercent": 3.0572,
+      "price": 10.52,
+      "previousClose": 10.449999809265137,
+      "change": 0.07000019073486285,
+      "changePercent": 0.6698582967704896,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.600966+08:00"
+      "lastUpdated": "2026-01-29T08:51:11.540Z"
     },
     "3600.HK": {
       "success": true,
-      "price": 6.07,
-      "previousClose": 5.960000038146973,
-      "change": 0.11,
-      "changePercent": 1.8456,
+      "price": 5.99,
+      "previousClose": 6.070000171661377,
+      "change": -0.08000017166137674,
+      "changePercent": -1.3179599571490697,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.657480+08:00"
+      "lastUpdated": "2026-01-29T08:51:12.043Z"
     },
     "0975.HK": {
       "success": true,
-      "price": 13.67,
-      "previousClose": 13.039999961853027,
-      "change": 0.63,
-      "changePercent": 4.8313,
+      "price": 14.01,
+      "previousClose": 13.670000076293945,
+      "change": 0.3399999237060545,
+      "changePercent": 2.487197672337039,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.702288+08:00"
+      "lastUpdated": "2026-01-29T08:51:12.552Z"
     },
     "0345.HK": {
       "success": true,
-      "price": 6.98,
+      "price": 7.02,
       "previousClose": 6.980000019073486,
-      "change": -0.0,
-      "changePercent": -0.0,
+      "change": 0.039999980926513246,
+      "changePercent": 0.5730656277537199,
       "currency": "HKD",
-      "lastUpdated": "2026-01-28T16:54:25.776277+08:00"
+      "lastUpdated": "2026-01-29T08:51:13.058Z"
+    },
+    "2643.HK": {
+      "success": true,
+      "price": 35,
+      "previousClose": 35.52000045776367,
+      "change": -0.5200004577636719,
+      "changePercent": -1.463965233846202,
+      "currency": "HKD",
+      "lastUpdated": "2026-01-29T08:51:01.477Z"
+    },
+    "1913.HK": {
+      "success": true,
+      "price": 40.24,
+      "previousClose": 40.279998779296875,
+      "change": -0.03999877929687301,
+      "changePercent": -0.09930183840380748,
+      "currency": "HKD",
+      "lastUpdated": "2026-01-29T08:51:03.435Z"
+    },
+    "0178.HK": {
+      "success": true,
+      "price": 0.59,
+      "previousClose": 0.6000000238418579,
+      "change": -0.010000023841857941,
+      "changePercent": -1.6666705740821186,
+      "currency": "HKD",
+      "lastUpdated": "2026-01-29T08:51:07.979Z"
+    },
+    "2175.HK": {
+      "success": true,
+      "price": 2.87,
+      "previousClose": 2.8399999141693115,
+      "change": 0.030000085830688583,
+      "changePercent": 1.0563410823011763,
+      "currency": "HKD",
+      "lastUpdated": "2026-01-29T08:51:08.487Z"
+    },
+    "1316.HK": {
+      "success": true,
+      "price": 6.7,
+      "previousClose": 6.78000020980835,
+      "change": -0.08000020980834943,
+      "changePercent": -1.1799440609546943,
+      "currency": "HKD",
+      "lastUpdated": "2026-01-29T08:51:13.564Z"
     }
   },
   "snapshots": [
     {
       "date": "2026-01-26",
-      "capitalEngaged": 922133.0,
-      "portfolioValue": 871570.0,
-      "unrealizedPnL": -50563.0,
-      "realizedPnL": 13983.0,
+      "capitalEngaged": 922133,
+      "portfolioValue": 871570,
+      "unrealizedPnL": -50563,
+      "realizedPnL": 13983,
       "totalDividends": 0,
       "positionCount": 16
     },
     {
       "date": "2026-01-27",
-      "capitalEngaged": 922133.0,
-      "portfolioValue": 872572.0,
-      "unrealizedPnL": -49561.0,
-      "realizedPnL": 13983.0,
+      "capitalEngaged": 922133,
+      "portfolioValue": 872572,
+      "unrealizedPnL": -49561,
+      "realizedPnL": 13983,
       "totalDividends": 0,
       "positionCount": 16
     },
     {
       "date": "2026-01-28",
-      "capitalEngaged": 922133.0,
-      "portfolioValue": 881503.0,
-      "unrealizedPnL": -40630.0,
-      "realizedPnL": 13983.0,
+      "capitalEngaged": 922133,
+      "portfolioValue": 881503,
+      "unrealizedPnL": -40630,
+      "realizedPnL": 13983,
       "totalDividends": 0,
       "positionCount": 16
+    },
+    {
+      "date": "2026-01-29",
+      "capitalEngaged": 950773,
+      "portfolioValue": 908623,
+      "unrealizedPnL": -42150,
+      "realizedPnL": 13982.999999999987,
+      "totalDividends": 0,
+      "positionCount": 17
     }
   ],
   "settings": {
     "corsProxy": "https://api.allorigins.win/raw?url=",
-    "autoRefresh": true
+    "autoRefresh": false,
+    "githubToken": ""
   }
 }
