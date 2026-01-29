@@ -370,7 +370,7 @@
       const [newTransaction, setNewTransaction] = useState({ type: 'deposit', amount: '', date: new Date().toISOString().split('T')[0], notes: '', linkedTicker: '' });
       const [dataLoaded, setDataLoaded] = useState(false);
       const [sortConfig, setSortConfig] = useState({ key: 'days', direction: 'desc' });
-      const [closeModal, setCloseModal] = useState({ show: false, position: null, exitPrice: '', exitDate: new Date().toISOString().split('T')[0] });
+      const [closeModal, setCloseModal] = useState({ show: false, position: null, exitPrice: '', exitDate: new Date().toISOString().split('T')[0], sellQuantity: '' });
       const [today] = useState(new Date().toISOString().split('T')[0]);
       const [editingEntryDate, setEditingEntryDate] = useState(null);
       const [isRefreshing, setIsRefreshing] = useState(false);
@@ -825,8 +825,15 @@
       };
 
       const closePosition = () => {
-        const { position, exitPrice, exitDate } = closeModal;
-        const qty = position.quantity;
+        const { position, exitPrice, exitDate, sellQuantity } = closeModal;
+        const qty = parseFloat(sellQuantity) || position.quantity;
+        const isPartial = qty < position.quantity;
+
+        // Validate quantity
+        if (qty <= 0 || qty > position.quantity) {
+          return alert(`Quantité invalide. Max: ${position.quantity}`);
+        }
+
         const buyAmount = qty * position.entryPrice;
         const sellAmount = qty * parseFloat(exitPrice);
         const buyFees = calcTradingFees(buyAmount, qty, true);
@@ -845,11 +852,23 @@
           totalFees: Math.round((buyFees + sellFees) * 100) / 100
         };
         const newClosed = [trade, ...closedTrades];
-        const newPos = positions.filter(p => p.id !== position.id);
+
+        let newPos;
+        if (isPartial) {
+          // Partial close: reduce position quantity
+          newPos = positions.map(p => p.id === position.id
+            ? { ...p, quantity: p.quantity - qty }
+            : p
+          );
+        } else {
+          // Full close: remove position
+          newPos = positions.filter(p => p.id !== position.id);
+        }
+
         setClosedTrades(newClosed);
         setPositions(newPos);
         saveData(newPos, newClosed, transactions, priceCache, snapshots, settings);
-        setCloseModal({ show: false, position: null, exitPrice: '', exitDate: '' });
+        setCloseModal({ show: false, position: null, exitPrice: '', exitDate: '', sellQuantity: '' });
       };
 
       // ===== TRANSACTION ACTIONS =====
@@ -1096,22 +1115,29 @@
                   <h3 className="font-bold mb-2">Clôturer {closeModal.position?.ticker}</h3>
                   <p className="text-xs text-gray-400 mb-3">Acheté: {fmtDate(closeModal.position?.entryDate)} ({calcDays(closeModal.position?.entryDate)}j)</p>
                   <div className="space-y-3 text-sm">
+                    <div>
+                      <label className="text-gray-400 text-xs">Quantité à vendre <span className="text-blue-400">(max: {closeModal.position?.quantity})</span></label>
+                      <input type="number" step="1" min="1" max={closeModal.position?.quantity} value={closeModal.sellQuantity} onChange={(e) => setCloseModal({ ...closeModal, sellQuantity: e.target.value })} className="w-full bg-gray-700 rounded px-3 py-2" />
+                    </div>
                     <div><label className="text-gray-400 text-xs">Prix sortie</label><input type="number" step="0.01" value={closeModal.exitPrice} onChange={(e) => setCloseModal({ ...closeModal, exitPrice: e.target.value })} className="w-full bg-gray-700 rounded px-3 py-2" /></div>
                     <div><label className="text-gray-400 text-xs">Date sortie</label><input type="date" value={closeModal.exitDate} onChange={(e) => setCloseModal({ ...closeModal, exitDate: e.target.value })} className="w-full bg-gray-700 rounded px-3 py-2" /></div>
                     {(() => {
                       const ep = parseFloat(closeModal.exitPrice) || 0;
                       const pos = closeModal.position;
-                      const qty = pos?.quantity || 0;
-                      const buyAmt = qty * (pos?.entryPrice || 0);
-                      const sellAmt = qty * ep;
-                      const grossPnl = (ep - (pos?.entryPrice || 0)) * qty;
-                      const bFees = calcTradingFees(buyAmt, qty, true);
-                      const sFees = calcTradingFees(sellAmt, qty, false);
+                      const sellQty = parseFloat(closeModal.sellQuantity) || pos?.quantity || 0;
+                      const isPartial = sellQty < (pos?.quantity || 0);
+                      const buyAmt = sellQty * (pos?.entryPrice || 0);
+                      const sellAmt = sellQty * ep;
+                      const grossPnl = (ep - (pos?.entryPrice || 0)) * sellQty;
+                      const bFees = calcTradingFees(buyAmt, sellQty, true);
+                      const sFees = calcTradingFees(sellAmt, sellQty, false);
                       const totalFees = Math.round((bFees + sFees) * 100) / 100;
                       const netPnl = grossPnl - totalFees;
                       const netPct = buyAmt > 0 ? (netPnl / (buyAmt + bFees)) * 100 : 0;
+                      const remaining = (pos?.quantity || 0) - sellQty;
                       return (
                         <div className="bg-gray-700 rounded p-2 text-xs space-y-1">
+                          {isPartial && <div className="flex justify-between text-yellow-400 font-semibold"><span>Vente partielle:</span><span>{sellQty} / {pos?.quantity} (reste: {remaining})</span></div>}
                           <div className="flex justify-between"><span>Durée:</span><span className="font-bold text-purple-400">{calcDays(pos?.entryDate, closeModal.exitDate)} jours</span></div>
                           <div className="flex justify-between"><span>P&L brut:</span><span className={grossPnl >= 0 ? 'text-green-400' : 'text-red-400'}>{fmt(grossPnl)} HKD</span></div>
                           <div className="flex justify-between text-gray-400"><span>Frais achat:</span><span>-{fmt(bFees)}</span></div>
@@ -1220,7 +1246,7 @@
                               {pnlP >= 0 ? '+' : ''}{pnlP.toFixed(1)}%
                             </td>
                             <td className="px-2 py-1.5 text-center">
-                              <button onClick={() => setCloseModal({ show: true, position: {...p, currentPrice}, exitPrice: currentPrice.toString(), exitDate: today })} className="text-green-400 p-0.5"><CheckCircle size={14} /></button>
+                              <button onClick={() => setCloseModal({ show: true, position: {...p, currentPrice}, exitPrice: currentPrice.toString(), exitDate: today, sellQuantity: p.quantity.toString() })} className="text-green-400 p-0.5"><CheckCircle size={14} /></button>
                               <button onClick={() => { if (confirm('Supprimer?')) { const np = positions.filter(x => x.id !== p.id); setPositions(np); saveData(np, closedTrades, transactions, priceCache, snapshots, settings); } }} className="text-red-400 p-0.5 ml-1"><Trash2 size={14} /></button>
                               <button onClick={() => refreshSinglePrice(p.ticker)} className="text-blue-400 hover:text-blue-300 p-0.5 ml-1" title="Refresh price"><RefreshCw size={14} /></button>
                             </td>
