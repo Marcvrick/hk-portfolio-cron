@@ -2241,32 +2241,47 @@
 
               return (
                 <div className="space-y-4">
-                  {/* Equity Curve */}
+                  {/* P&L Total Curve */}
+                  {(() => {
+                    const pnlData = sortedSnaps.map(s => ({
+                      date: s.date.substring(5),
+                      totalPnL: (s.unrealizedPnL || 0) + (s.realizedPnL || 0)
+                    }));
+                    const latestPnL = pnlData.length > 0 ? pnlData[pnlData.length - 1].totalPnL : 0;
+                    const isPositive = latestPnL >= 0;
+
+                    return (
                   <div className="bg-gray-800 rounded-lg p-4">
-                    <h3 className="font-semibold mb-3">Equity Curve</h3>
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="font-semibold">P&L Total</h3>
+                      <span className={`text-sm font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        {isPositive ? '+' : ''}{fmt(latestPnL)} HKD
+                      </span>
+                    </div>
                     {!RECHARTS_LOADED ? (
                       <ChartFallback message="Recharts non chargé" />
-                    ) : sortedSnaps.length > 1 ? (
+                    ) : pnlData.length > 1 ? (
                       <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={sortedSnaps.map(s => ({ date: s.date.substring(5), value: s.portfolioValue, capital: s.capitalEngaged }))}>
+                        <AreaChart data={pnlData}>
                           <defs>
-                            <linearGradient id="colorEqHist" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                            <linearGradient id="colorEqPnl" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor={isPositive ? '#10B981' : '#EF4444'} stopOpacity={0.4} />
+                              <stop offset="95%" stopColor={isPositive ? '#10B981' : '#EF4444'} stopOpacity={0} />
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                           <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 10 }} />
-                          <YAxis stroke="#9CA3AF" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} domain={['dataMin - 50000', 'dataMax + 50000']} />
-                          <Tooltip formatter={(v) => [fmt(v) + ' HKD']} contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '12px' }} />
-                          <Area type="monotone" dataKey="value" stroke="#3B82F6" fill="url(#colorEqHist)" name="Valeur" />
-                          <Area type="monotone" dataKey="capital" stroke="#8B5CF6" fill="none" strokeDasharray="5 5" name="Capital" />
+                          <YAxis stroke="#9CA3AF" tickFormatter={(v) => v > 999 || v < -999 ? `${(v / 1000).toFixed(0)}k` : v} />
+                          <Tooltip formatter={(v) => [(v >= 0 ? '+' : '') + fmt(v) + ' HKD', 'P&L Total']} contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px', fontSize: '12px' }} />
+                          <Area type="monotone" dataKey="totalPnL" stroke={isPositive ? '#10B981' : '#EF4444'} fill="url(#colorEqPnl)" name="P&L Total" strokeWidth={2} />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
-                      <p className="text-gray-500 text-xs text-center py-8">Pas assez de snapshots (besoin de 2+). Actuellement: {sortedSnaps.length}</p>
+                      <p className="text-gray-500 text-xs text-center py-8">Pas assez de snapshots (besoin de 2+). Actuellement: {pnlData.length}</p>
                     )}
                   </div>
+                    );
+                  })()}
 
                   {/* Weekly P&L */}
                   <div className="bg-gray-800 rounded-lg p-4">
