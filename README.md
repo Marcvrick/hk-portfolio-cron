@@ -80,6 +80,16 @@ See `HSBC trading fees.md` for detailed fee structure and formulas.
 
 ## What's Left to Improve
 
+### Priority: GitHub API Persistence (in progress)
+Currently, user edits (positions, closed trades) are saved to localStorage, which is domain-specific. Changes made on localhost don't appear on GitHub Pages and vice versa.
+
+**To fix — implement GitHub API save:**
+1. Add GitHub token storage in Settings tab
+2. Create function to push `data.json` updates via GitHub Contents API
+3. Update `saveData()` to sync changes to GitHub after localStorage save
+4. This enables using the app from anywhere with persistent data
+
+### Other improvements
 - Move to a proper React project with build step (Vite)
 - Backend API to avoid CORS proxy dependency
 - Sector/industry breakdown view
