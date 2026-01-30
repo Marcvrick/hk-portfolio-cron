@@ -55,7 +55,7 @@ Position tab footer totals update immediately when syncing prices (computed dire
 - **Daily cron**: `update.py` runs via GitHub Actions at market close, updates `data.json` with prices and snapshots, commits and pushes
 - **Same-day entries**: New positions entered today show daily P&L from entry price, not yesterday's close
 - **Closed trades in daily P&L**: Positions closed today contribute their gain (exitPrice - previousClose) to Today's P&L
-- **Snapshots**: Created automatically by cron (no manual button needed). Powers equity curve and calendar
+- **Snapshots**: Created automatically by cron and **updated in real-time** when trades are closed or positions change. Powers equity curve and calendar
 - **Remote sync**: On page load, `index.html` fetches `data.json` from GitHub Pages to merge cron-updated snapshots and price cache
 
 ## Data
@@ -78,6 +78,20 @@ Position tab footer totals update immediately when syncing prices (computed dire
 
 See `HSBC trading fees.md` for detailed fee structure and formulas.
 
+## Changelog
+
+### 2026-01-30
+- **Fix**: Snapshots now update when trades are closed (previously only created if not existing)
+  - Before: Closing a trade after cron ran would not update today's `realizedPnL` in the snapshot
+  - After: Snapshot is updated whenever `realizedPnL`, `positionCount`, or `capitalEngaged` changes
+  - This fixes the calendar not showing wins from trades closed after the daily cron run
+
+### 2026-01-29
+- Added TS Lines (2510.HK) to portfolio
+- Closed Mongolian Mining (0975.HK) with +20,250 HKD profit
+
+---
+
 ## What's Left to Improve
 
 ### Priority: GitHub API Persistence
@@ -93,3 +107,23 @@ See `HSBC trading fees.md` for detailed fee structure and formulas.
 - Sector/industry breakdown view
 - Mobile responsiveness improvements
 - Add fees to historical trades (backfill)
+
+---
+
+## Troubleshooting
+
+### Closed position reappears in portfolio
+This can happen if:
+1. **Browser cache**: Clear localStorage and reload. The app will fetch fresh data from GitHub.
+2. **Sync not pushed**: After closing a trade, use "Push to GitHub" in Settings to persist changes.
+3. **Cron overwrote changes**: If you closed a trade but didn't push before the daily cron ran, the cron might have used stale data. Solution: Push your changes, then the next cron run will use the correct data.
+
+**To force refresh from GitHub:**
+1. Open browser DevTools (F12)
+2. Go to Application > Local Storage
+3. Delete `hk-portfolio-v7`
+4. Reload the page
+
+### Calendar not showing today's trade P&L
+- Snapshots update automatically when you close trades
+- If the calendar still shows wrong data, try "Push to GitHub" then reload
