@@ -699,27 +699,35 @@
           setDailyGain({ value: 0, percent: 0, hasYesterday: false });
         }
 
-        // Auto-save snapshot for today if not exists
-        if (!todaySnapshot) {
-          const closedWithCalc = closedTrades.map(t => ({
-            pnl: (t.exitPrice - t.entryPrice) * t.quantity
-          }));
-          const realizedPnL = closedWithCalc.reduce((s, t) => s + t.pnl, 0);
-          const totalDividends = transactions
-            .filter(t => t.type === 'dividend')
-            .reduce((sum, t) => sum + t.amount, 0);
+        // Auto-save/update snapshot for today (always update to capture trade closures)
+        const closedWithCalc = closedTrades.map(t => ({
+          pnl: (t.exitPrice - t.entryPrice) * t.quantity
+        }));
+        const realizedPnL = closedWithCalc.reduce((s, t) => s + t.pnl, 0);
+        const totalDividends = transactions
+          .filter(t => t.type === 'dividend')
+          .reduce((sum, t) => sum + t.amount, 0);
 
-          const newSnapshot = {
-            date: today,
-            capitalEngaged,  // Coût d'achat des positions ouvertes
-            portfolioValue: currentValue,
-            unrealizedPnL: currentValue - capitalEngaged,
-            realizedPnL,
-            totalDividends,
-            positionCount: positions.length
-          };
+        const newSnapshot = {
+          date: today,
+          capitalEngaged,  // Coût d'achat des positions ouvertes
+          portfolioValue: currentValue,
+          unrealizedPnL: currentValue - capitalEngaged,
+          realizedPnL,
+          totalDividends,
+          positionCount: positions.length
+        };
 
-          const newSnapshots = [...snapshots, newSnapshot].sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Check if snapshot changed (to avoid unnecessary saves)
+        const snapshotChanged = !todaySnapshot ||
+          todaySnapshot.realizedPnL !== realizedPnL ||
+          todaySnapshot.positionCount !== positions.length ||
+          Math.abs(todaySnapshot.capitalEngaged - capitalEngaged) > 1;
+
+        if (snapshotChanged) {
+          // Replace existing or add new snapshot
+          const filteredSnapshots = snapshots.filter(s => s.date !== today);
+          const newSnapshots = [...filteredSnapshots, newSnapshot].sort((a, b) => new Date(a.date) - new Date(b.date));
           setSnapshots(newSnapshots);
 
           // Save to localStorage
@@ -733,7 +741,7 @@
             settings
           }));
 
-          console.log('Auto-snapshot saved for', today);
+          console.log('Snapshot updated for', today, todaySnapshot ? '(replaced)' : '(new)');
         }
       }, [dataLoaded, positions, priceCache, transactions, closedTrades, today]);
 

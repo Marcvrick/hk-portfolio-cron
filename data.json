@@ -466,10 +466,10 @@
     },
     {
       "date": "2026-01-29",
-      "capitalEngaged": 922133,
-      "portfolioValue": 881503,
-      "unrealizedPnL": -40630,
-      "realizedPnL": 13982.999999999987,
+      "capitalEngaged": 893243,
+      "portfolioValue": 848368,
+      "unrealizedPnL": -44875,
+      "realizedPnL": 34233,
       "totalDividends": 0,
       "positionCount": 16
     }
