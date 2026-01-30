@@ -101,6 +101,24 @@ See `HSBC trading fees.md` for detailed fee structure and formulas.
 - ✅ "Pull from GitHub" button to fetch latest data.json and replace local data
 - ✅ Full multi-device sync enabled (phone → push → computer → pull)
 
+### Redesign: Light Theme (in progress)
+Working file: `index-dev.html` (not deployed, for local testing only)
+
+**New color palette:**
+| Element | Color | Hex |
+|---------|-------|-----|
+| Background | Cream | `#f5f5e8` |
+| Cards | White | `#ffffff` |
+| Accent (buttons, highlights) | Lime green | `#c4e538` |
+| Accent hover | Darker lime | `#a8c82a` |
+| Text primary | Soft black | `#1a1a1a` |
+| Text secondary | Gray | `#6b7280` |
+| Positive P&L | Green | `#22c55e` |
+| Negative P&L | Red | `#ef4444` |
+| Card border/shadow | Light gray | `#e5e5e5` |
+
+**Design direction:** Clean, modern dashboard style with subtle shadows, rounded cards, light background. Inspired by Zentry dashboard aesthetic.
+
 ### Other improvements
 - Move to a proper React project with build step (Vite)
 - Backend API to avoid CORS proxy dependency
